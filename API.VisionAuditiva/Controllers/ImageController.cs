@@ -56,5 +56,17 @@ namespace API.VisionAuditiva.Controllers
             }
             return Ok(_response);
         }
+
+        [HttpGet("{filename}")]
+        public async Task<IActionResult> GetImage(string filename)
+        {
+            var stream = await _imageService.GetImageStreamAsync(filename);
+            if (stream == null)
+            {
+                return NotFound();
+            }
+
+            return File(stream, "image/jpeg");
+        }
     }
 }
