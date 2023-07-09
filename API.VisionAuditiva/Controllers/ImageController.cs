@@ -38,5 +38,23 @@ namespace API.VisionAuditiva.Controllers
             }
             return Ok(_response);
         }
+
+        [HttpGet("GetImageBase64/{filename}")]
+        public async Task<IActionResult> GetImageBase64(string filename)
+        {
+            try
+            {
+                var base64 = await _imageService.GetImageAsBase64Async(filename);
+                _response.Result = base64;
+                _response.DisplayMessage = "Base64 Image";
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.DisplayMessage = "Error";
+                _response.ErrorMessages = new List<string>() { ex.ToString() }; 
+            }
+            return Ok(_response);
+        }
     }
 }
