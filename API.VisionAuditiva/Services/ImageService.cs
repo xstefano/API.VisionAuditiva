@@ -1,6 +1,8 @@
 ﻿using API.VisionAuditiva.Interfaces;
 using API.VisionAuditiva.Models;
+using Azure;
 using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 
 namespace API.VisionAuditiva.Services
 {
@@ -17,9 +19,21 @@ namespace API.VisionAuditiva.Services
             _blobContainerName = "image";
         }
 
-        public Task<string> GetImageAsBase64Async(string filename)
+        public async Task<string> GetImageAsBase64Async(string filename)
         {
-            throw new NotImplementedException();
+            BlobContainerClient containerClient = _blobServiceClient.GetBlobContainerClient(_blobContainerName);
+            BlobClient blobClient = containerClient.GetBlobClient(filename);
+
+            Response<BlobProperties> properties = await blobClient.GetPropertiesAsync();
+
+            byte[] bytes = new byte[properties.Value.ContentLength];
+
+            using (var Stream = new MemoryStream(bytes))
+            {
+                await blobClient.DownloadToAsync(Stream);
+            }
+
+            return Convert.ToBase64String(bytes);
         }
 
         public Task<Stream> GetImageStreamAsync(string filename)
