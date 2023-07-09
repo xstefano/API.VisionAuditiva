@@ -17,5 +17,26 @@ namespace API.VisionAuditiva.Controllers
             _imageService = imageService;
             _response = new Response();
         }
+
+
+        [HttpPost]
+        public async Task<IActionResult> SaveImage(Image image)
+        {
+            try
+            {
+                var url = await _imageService.SaveImageFromBase64Async(image.imageBase64, image.filename);
+                url.imageBase64 = $"https://localhost:7135/Image/{url.filename}";
+                _response.Result = url;
+                _response.DisplayMessage = "Image Uploaded";
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.DisplayMessage = "Error saving image";
+                _response.ErrorMessages = new List<string>() { ex.ToString() };
+                throw;
+            }
+            return Ok(_response);
+        }
     }
 }
