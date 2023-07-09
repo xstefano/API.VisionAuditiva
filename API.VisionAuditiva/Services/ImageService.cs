@@ -36,9 +36,12 @@ namespace API.VisionAuditiva.Services
             return Convert.ToBase64String(bytes);
         }
 
-        public Task<Stream> GetImageStreamAsync(string filename)
+        public async Task<Stream> GetImageStreamAsync(string filename)
         {
-            throw new NotImplementedException();
+            BlobContainerClient containerClient = _blobServiceClient.GetBlobContainerClient(_blobContainerName);
+            BlobClient blobClient = containerClient.GetBlobClient(filename);
+            var response = await blobClient.DownloadAsync();
+            return response.Value.Content;
         }
 
         public Task<Image> SaveImageFromBase64Async(string base64, string filename)
