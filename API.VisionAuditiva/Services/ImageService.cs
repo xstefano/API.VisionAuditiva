@@ -44,9 +44,25 @@ namespace API.VisionAuditiva.Services
             return response.Value.Content;
         }
 
-        public Task<Image> SaveImageFromBase64Async(string base64, string filename)
+        public async Task<Image> SaveImageFromBase64Async(string base64, string filename)
         {
-            throw new NotImplementedException();
+            byte[] bytes = Convert.FromBase64String(base64);
+
+            BlobContainerClient containerClient = _blobServiceClient.GetBlobContainerClient(_blobContainerName);
+            BlobClient blobClient = containerClient.GetBlobClient(filename);
+
+            using (MemoryStream stream = new MemoryStream(bytes))
+            {
+                await blobClient.UploadAsync(stream, true);
+            }
+
+            var result = new Image()
+            {
+                imageBase64 = blobClient.Uri.ToString(),
+                filename = filename
+            };
+
+            return result;
         }
     }
 }
