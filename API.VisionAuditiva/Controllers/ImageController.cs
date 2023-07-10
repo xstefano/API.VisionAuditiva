@@ -25,7 +25,7 @@ namespace API.VisionAuditiva.Controllers
             try
             {
                 var url = await _imageService.SaveImageFromBase64Async(image.imageBase64, image.filename);
-                url.imageBase64 = $"https://localhost:7135/Image/{url.filename}";
+                url.imageBase64 = $"https://visionauditiva.azurewebsites.net/Image/{url.filename}";
                 _response.Result = url;
                 _response.DisplayMessage = "Image Uploaded";
             }
