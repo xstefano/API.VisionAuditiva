@@ -1,5 +1,8 @@
 ﻿using API.VisionAuditiva.Interfaces;
+using API.VisionAuditiva.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Data;
 
 namespace API.VisionAuditiva.Controllers
 {
@@ -15,6 +18,7 @@ namespace API.VisionAuditiva.Controllers
         }
 
         [HttpGet("getResponse")]
+        [Authorize(Roles = UserRoles.Admin)]
         public async Task<IActionResult> getResponse(string request)
         {
             var text = await _cognitiveChatService.getResponse(request);

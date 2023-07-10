@@ -1,7 +1,9 @@
 ﻿using API.VisionAuditiva.Interfaces;
 using API.VisionAuditiva.Message;
 using API.VisionAuditiva.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Data;
 
 namespace API.VisionAuditiva.Controllers
 {
@@ -20,6 +22,7 @@ namespace API.VisionAuditiva.Controllers
 
 
         [HttpPost]
+        [Authorize(Roles = UserRoles.Admin)]
         public async Task<IActionResult> SaveImage(Image image)
         {
             try
