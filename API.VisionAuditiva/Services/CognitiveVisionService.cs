@@ -31,9 +31,17 @@ namespace API.VisionAuditiva.Services
             return "No se ha encontrado ninguna descripcion para la imagen";
         }
 
-        public Task<string> DescribeFromUrlAsync(string imageUrl)
+        public async Task<string> DescribeFromUrlAsync(string imageUrl)
         {
-            throw new NotImplementedException();
+            ImageDescription descriptions = await _computerVision.DescribeImageAsync(imageUrl, language: "es");
+
+            string? response = descriptions.Captions.FirstOrDefault()?.Text;
+
+            if (response != null)
+            {
+                return response;
+            }
+            return "No se ha encontrado ninguna descripcion para la imagen";
         }
 
         public Task<string> DetectObjectsFromUrlAsync(string imageUrl)
