@@ -11,6 +11,15 @@ namespace API.VisionAuditiva.Services
         private const string endpoint = "[endpoint]";
         private const string key = "[key]";
 
+        public CognitiveVisionService(TranslatorService translatorService)
+        {
+            _computerVision = new ComputerVisionClient(new ApiKeyServiceClientCredentials(key))
+            {
+                Endpoint = endpoint
+            };
+            _translatorService = translatorService;
+        }
+
         public async Task<string> AnalyzeFromUrlAsync(string imageUrl)
         {
             List<VisualFeatureTypes?> features = new List<VisualFeatureTypes?>()
@@ -86,9 +95,39 @@ namespace API.VisionAuditiva.Services
             }
         }
 
-        public Task<string> ReadImageUrlAsync(string imageUrl)
+        public async Task<string> ReadImageUrlAsync(string imageUrl)
         {
-            throw new NotImplementedException();
+            var textHeaders = await _computerVision.ReadAsync(imageUrl);
+            string operationLocation = textHeaders.OperationLocation;
+            Thread.Sleep(2000);
+
+            const int numberOfCharsInOperationId = 36;
+            string operationId = operationLocation.Substring(operationLocation.Length - numberOfCharsInOperationId);
+
+            ReadOperationResult results;
+            do
+            {
+                results = await _computerVision.GetReadResultAsync(Guid.Parse(operationId));
+            }
+            while ((results.Status == OperationStatusCodes.Running ||
+                results.Status == OperationStatusCodes.NotStarted));
+
+            var textUrlFileResults = results.AnalyzeResult.ReadResults;
+
+            string extractedText = string.Empty;
+            foreach (ReadResult page in textUrlFileResults)
+            {
+                foreach (Line line in page.Lines)
+                {
+                    extractedText += $"{line.Text} ";
+                }
+            }
+
+            if (extractedText != string.Empty)
+            {
+                return extractedText.Trim();
+            }
+            return "No se ha encontrado ningun texto en la imagen.";
         }
     }
 }
