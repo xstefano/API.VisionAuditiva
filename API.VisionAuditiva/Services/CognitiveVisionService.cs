@@ -7,6 +7,7 @@ namespace API.VisionAuditiva.Services
     public class CognitiveVisionService : ICognitiveVisionService
     {
         private readonly ComputerVisionClient _computerVision;
+        private readonly TranslatorService _translatorService;
         private const string endpoint = "[endpoint]";
         private const string key = "[key]";
 
@@ -44,9 +45,45 @@ namespace API.VisionAuditiva.Services
             return "No se ha encontrado ninguna descripcion para la imagen";
         }
 
-        public Task<string> DetectObjectsFromUrlAsync(string imageUrl)
+        public async Task<string> DetectObjectsFromUrlAsync(string imageUrl)
         {
-            throw new NotImplementedException();
+            DetectResult analysis = await _computerVision.DetectObjectsAsync(imageUrl);
+            Dictionary<string, int> objectCounts = new Dictionary<string, int>();
+
+            foreach (var obj in analysis.Objects)
+            {
+                if (!objectCounts.ContainsKey(obj.ObjectProperty))
+                {
+                    objectCounts[obj.ObjectProperty] = 0;
+                }
+
+                objectCounts[obj.ObjectProperty]++;
+            }
+
+            if (objectCounts.Count > 0)
+            {
+                var translatedObjects = new List<string>();
+
+                foreach (var kvp in objectCounts)
+                {
+                    string translatedObject = await _translatorService.TranslateTextAsync(kvp.Key, "es");
+                    translatedObjects.Add($"{kvp.Value} {translatedObject}");
+                }
+
+                var objectString = string.Join(", ", translatedObjects);
+
+                if (translatedObjects.Count > 1)
+                {
+                    var lastCommaIndex = objectString.LastIndexOf(",");
+                    objectString = objectString.Substring(0, lastCommaIndex) + " y" + objectString.Substring(lastCommaIndex + 1);
+                }
+
+                return "Se han detectado los siguientes objetos: " + objectString;
+            }
+            else
+            {
+                return "En la imagen no se ha encontrado ningún objeto.";
+            }
         }
 
         public Task<string> ReadImageUrlAsync(string imageUrl)
