@@ -7,6 +7,8 @@ namespace API.VisionAuditiva.Services
 {
     public class TranslatorService : ITranslatorService
     {
+        public TranslatorService() { }
+
         public async Task<string> TranslateTextAsync(string text, string targetLanguage)
         {
             string apiKey = "[apiKey]";

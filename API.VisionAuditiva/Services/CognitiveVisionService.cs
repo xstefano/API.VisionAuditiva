@@ -7,11 +7,11 @@ namespace API.VisionAuditiva.Services
     public class CognitiveVisionService : ICognitiveVisionService
     {
         private readonly ComputerVisionClient _computerVision;
-        private readonly TranslatorService _translatorService;
+        private readonly ITranslatorService _translatorService;
         private const string endpoint = "[endpoint]";
         private const string key = "[key]";
 
-        public CognitiveVisionService(TranslatorService translatorService)
+        public CognitiveVisionService(ITranslatorService translatorService)
         {
             _computerVision = new ComputerVisionClient(new ApiKeyServiceClientCredentials(key))
             {

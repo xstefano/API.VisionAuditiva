@@ -10,6 +10,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddScoped<IImageService, ImageService>();
+builder.Services.AddScoped<ITranslatorService, TranslatorService>();
+builder.Services.AddScoped<ICognitiveVisionService, CognitiveVisionService>();
+
 
 builder.Services.AddSwaggerGen();
 
